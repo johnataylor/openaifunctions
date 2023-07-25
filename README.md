@@ -1,5 +1,5 @@
 # openaifunctions
-Exploring the poitential for organizing client code around OpenAI functions 
+Exploring the potential for organizing client code around OpenAI functions 
 
 The function Resolver.Run will repeatedly call functions until the user's question is addressed.
 
