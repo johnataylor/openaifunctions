@@ -1,0 +1,39 @@
+[
+  {
+    "name": "get_multiple_work_order_details",
+    "description": "Get details for an array of work orders, takes an array as a argument, this includes the current status",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "work_order_ids": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "work_order_id": {
+                "type": "string",
+                "description": "The identifier for the work order"
+              }
+            }
+          },
+          "description": "An array of identifiers for the work orders details are needed for."
+        }
+      },
+      "required": [ "work_order_ids" ]
+    }
+  },
+  {
+    "name": "get_work_orders_by_account",
+    "description": "Get work orders for an account, returns an array of identifiers for each work order",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "account_id": {
+          "type": "string",
+          "description": "The identifier for the account"
+        }
+      },
+      "required": [ "account_id" ]
+    }
+  }
+]
