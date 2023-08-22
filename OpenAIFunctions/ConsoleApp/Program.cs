@@ -33,7 +33,7 @@ foreach (var item in functionDescriptions.AsArray())
     });
 }
 
-var functionImplementations = new Dictionary<string, Func<JsonNode, JsonNode>>
+var functionImplementations = new Dictionary<string, Func<JsonNode, Task<JsonNode>>>
 {
 //  if we're going to expect our language model to perform "joins," it's only reasonable to give it functions that handle collections right!? :-)
 //  but seriously, note the schema we give the model should be fully specified to include the type of the elements in the array, this is important
@@ -43,17 +43,14 @@ var functionImplementations = new Dictionary<string, Func<JsonNode, JsonNode>>
     { "get_work_orders_by_account", get_work_orders_by_account },
 };
 
-
-
 // the user question we want answering, note in this example a "join" is needed, this is handled with iteration, and then the intermediate result will need "filtering"
 
-var result = await Resolver.Run("what are the 'in progress' work orders for account 01234?", client, deploymentOrModelName, functionDefinitions, functionImplementations);
+var result = await Resolver.RunAsync("what are the 'in progress' work orders for account 01234?", client, deploymentOrModelName, functionDefinitions, functionImplementations);
 Console.WriteLine(result);
 
-
-
-
 // **** **** **** **** function implementations **** **** **** ****
+
+// best practice: when dealing with data identity is important
 
 JsonNode get_work_order_details(JsonNode? arguments)
 {
@@ -79,15 +76,17 @@ JsonNode get_work_order_details(JsonNode? arguments)
     }
 }
 
-JsonNode mapcar(JsonArray? array, Func<JsonNode?, JsonNode> func)
+// best practice: when dealing with data operating on collections is important
+
+Task<JsonNode> mapcar(JsonArray? array, Func<JsonNode?, JsonNode> func)
 {
     array = array ?? throw new ArgumentNullException("array");
-    return new JsonArray(array.Select((element, Index) => func(element)).ToArray());
+    return Task.FromResult<JsonNode>(new JsonArray(array.Select((element, Index) => func(element)).ToArray()));
 }
 
-JsonNode get_work_orders_by_account(JsonNode arguments)
+Task<JsonNode> get_work_orders_by_account(JsonNode arguments)
 {
     // mock up some data
 
-    return new JsonArray { new JsonObject { { "work_order_id", "00052" } }, new JsonObject { { "work_order_id", "00042" } }, new JsonObject { { "work_order_id", "52341" } } };
+    return Task.FromResult<JsonNode>(new JsonArray { new JsonObject { { "work_order_id", "00052" } }, new JsonObject { { "work_order_id", "00042" } }, new JsonObject { { "work_order_id", "52341" } } });
 }
