@@ -48,6 +48,11 @@ var functionImplementations = new Dictionary<string, Func<JsonNode, Task<JsonNod
 var result = await Resolver.RunAsync("what are the 'in progress' work orders for account 01234?", client, deploymentOrModelName, functionDefinitions, functionImplementations);
 Console.WriteLine(result);
 
+//var entityExtraction = new EntityExtraction(client, deploymentOrModelName);
+//var email = File.ReadAllText("email.txt");
+//await entityExtraction.RunAsync(email);
+
+
 // **** **** **** **** function implementations **** **** **** ****
 
 // best practice: when dealing with data identity is important

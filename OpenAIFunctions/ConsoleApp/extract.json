@@ -1,0 +1,26 @@
+[
+  {
+    "name": "create_work_order",
+    "description": "Create a work order from an email.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "work_order_type": {
+          "type": "string",
+          "enum": [ "Inspection", "Installation", "Preventive", "Maintenance", "Service Call", "NA" ],
+          "description": "The type of the work order."
+        },
+        "incident_type": {
+          "type": "string",
+          "enum": [ "Camera", "Down", "Malfunction", "Not turning on", "Fan Out", "Printer", "Issue", "Thermostat is Broken" ],
+          "description": "The type of the incident. Should be one of: 'Camera', 'Down', 'Malfunction', 'Not turning on', 'Fan Out', 'Printer', 'Issue', 'Thermostat is Broken'."
+        },
+        "summary": {
+          "type": "string",
+          "description": "A brief summary of the work order."
+        }
+      },
+      "required": [ "work_order_type", "incident_type", "summary" ]
+    }
+  }
+]
