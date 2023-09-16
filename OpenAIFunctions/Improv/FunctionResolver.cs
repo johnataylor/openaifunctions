@@ -3,7 +3,7 @@ using System.Text.Json.Nodes;
 
 namespace ConsoleApp
 {
-    internal class FunctionResolver
+    public class FunctionResolver
     {
         private const int MAX_ITERATIONS = 10;
 
@@ -20,7 +20,7 @@ namespace ConsoleApp
             _functionImplementations = functionImplementations;
         }
 
-        public async Task RunAsync(List<ChatMessage> conversationMessages)
+        public async Task RunAsync(List<ChatMessage> conversationMessages, Func<string, Task> trace)
         {
             var iterations = 0;
 
@@ -29,7 +29,7 @@ namespace ConsoleApp
             while (conversationMessages.Last().Role != ChatRole.Assistant && iterations++ < MAX_ITERATIONS)
             {
                 var response = await CallChatCompletionAsync(conversationMessages);
-                await ProcessResponseAsync(response, conversationMessages);
+                await ProcessResponseAsync(response, conversationMessages, trace);
             }
 
             // TODO: warning if we reached max iterations
@@ -60,7 +60,7 @@ namespace ConsoleApp
             return chatComplations.Value.Choices[0] ?? throw new Exception("what?! we have no choice!");
         }
 
-        private async Task ProcessResponseAsync(ChatChoice chatChoice, List<ChatMessage> conversationMessages)
+        private async Task ProcessResponseAsync(ChatChoice chatChoice, List<ChatMessage> conversationMessages, Func<string, Task> trace)
         {
             if (chatChoice.FinishReason == CompletionsFinishReason.FunctionCall)
             {
@@ -75,12 +75,12 @@ namespace ConsoleApp
 
                     if (_functionImplementations.TryGetValue(functionName, out var func))
                     {
-                        Trace($"function call:\n{functionName}('{argumentsArguments}')");
+                        await trace($"function call:\n{functionName}('{argumentsArguments}')");
 
                         // call the function
                         var functionResponse = await func(argumentsArguments);
 
-                        Trace($"response:\n'{functionResponse}'");
+                        await trace($"response:\n'{functionResponse}'");
 
                         conversationMessages.Add(new ChatMessage(ChatRole.Function, functionResponse.ToJsonString()) { Name = functionName });
                     }
@@ -94,14 +94,6 @@ namespace ConsoleApp
                 conversationMessages.Add(chatChoice.Message);
                 // TODO: warning if the finish reason is not CompletionsFinishReason.Stopped
             }
-        }
-
-        private static void Trace(string message)
-        {
-            var forgroundColor = Console.ForegroundColor;
-            Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.WriteLine(message);
-            Console.ForegroundColor = forgroundColor;
         }
     }
 }
